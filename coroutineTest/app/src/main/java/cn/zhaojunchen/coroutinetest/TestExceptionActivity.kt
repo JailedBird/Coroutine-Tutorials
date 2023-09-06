@@ -47,15 +47,18 @@ class TestExceptionActivity : AppCompatActivity() {
     private val _lifecycleScope get() = lifecycleScope
 
     // 使用自定义Scope的意义在于 测试Job和SupervisorJob对协程的影响
+    // Job会将顶层的协程传递到顶层Scope 【如果有Top Job存在异常处理器，则还是由Top Job处理】
+    // Top Scope会导致其他任务取消 这就是最大的影响
     // 以及他们的异常处理器解决方案
     private val scope =
-        CoroutineScope(Dispatchers.Main.immediate + scopeExceptionHandler +/*SupervisorJob*/Job())
+        // CoroutineScope(Dispatchers.Main.immediate + scopeExceptionHandler +/*SupervisorJob*/Job())
+        CoroutineScope(Dispatchers.Main.immediate + scopeExceptionHandler + SupervisorJob())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_exception)
         lifecycleScope.launch {
-            testAsync3()
+            test001()
         }
     }
 
@@ -105,6 +108,10 @@ class TestExceptionActivity : AppCompatActivity() {
         }
         // 测试Job的情况被干掉的时候 是否还能启动协程
         lifecycleScope.launch {
+            delay(3000)
+            lifecycleScope.launch{
+                log("Scope is alive? " + scope.isActive)
+            }
             delay(6000)
             log("Scope is alive? " + scope.isActive)
             scope.launch {

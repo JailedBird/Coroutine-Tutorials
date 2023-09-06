@@ -10,7 +10,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // set default entry
-        TestActivity.start(this)
+        TestExceptionActivity.start(this)
     }
 
     override fun onClick(v: View?) {
