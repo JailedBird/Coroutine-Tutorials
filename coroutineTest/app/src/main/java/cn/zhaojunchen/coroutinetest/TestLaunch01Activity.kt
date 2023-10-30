@@ -31,7 +31,30 @@ class TestLaunch01Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_launch01)
         // testLaunch001()
-        testLaunch002()
+        // testLaunch002()
+        testLaunch000()
+    }
+    // 子协程执行无线任务时候 是不会执行退出的 父协程会等待子协程执行完毕 除非自己cancel
+    private fun testLaunch000() {
+        // 外层协程启动子协程 执行无限delay
+        lifecycleScope.launch{
+            log("测试父子协程")
+            launch {
+                while (true) {
+                    delay(1000)
+                    log("父子协程嵌套")
+                }
+            }
+
+            lifecycleScope.launch {
+                while (true) {
+                    delay(1000)
+                    log("同级别协程嵌套")
+                }
+            }
+            log("父子协程Block结束，观测两种协程是否停止！")
+            // cancel()
+        }
     }
 
     // 测试协程的父子关系
