@@ -10,22 +10,22 @@
 
 ```
 class SystemRemoteRepository{
-	/**
-	 * 1. 展示回调嵌套，回调地狱
-	 */
-	fun getArticleList(responseBack: (result: Pagination<Article>?) -> Unit) {
-	        /**1. 获取文章树结构*/
-	        val call:Call<ApiResult<MutableList<Tree>>> = RetrofitClient.apiService.getTree()
-	        //同步（需要自己手动切换线程）
-	        //val response : Response<ApiResult<MutableList<Tree>>> = call.execute()
-	        //异步回调
-	        call.enqueue(object : Callback<ApiResult<MutableList<Tree>>> {
-	            override fun onFailure(call: Call<ApiResult<MutableList<Tree>>>, t: Throwable) {
-	            }
-	            override fun onResponse(call: Call<ApiResult<MutableList<Tree>>>, response: Response<ApiResult<MutableList<Tree>>>) 
-	        })
-	        log("函数执行结束")
-	    }
+    /**
+     * 1. 展示回调嵌套，回调地狱
+     */
+    fun getArticleList(responseBack: (result: Pagination<Article>?) -> Unit) {
+            /**1. 获取文章树结构*/
+            val call:Call<ApiResult<MutableList<Tree>>> = RetrofitClient.apiService.getTree()
+            //同步（需要自己手动切换线程）
+            //val response : Response<ApiResult<MutableList<Tree>>> = call.execute()
+            //异步回调
+            call.enqueue(object : Callback<ApiResult<MutableList<Tree>>> {
+                override fun onFailure(call: Call<ApiResult<MutableList<Tree>>>, t: Throwable) {
+                }
+                override fun onResponse(call: Call<ApiResult<MutableList<Tree>>>, response: Response<ApiResult<MutableList<Tree>>>) 
+            })
+            log("函数执行结束")
+        }
 }
 
 class SystemViewModel : BaseViewModel(){
@@ -34,12 +34,12 @@ class SystemViewModel : BaseViewModel(){
 
     fun getArticleList() {
         viewModelScope.launch {  //主线程开启一个协程
-        	// 网络请求：IO线程
+            // 网络请求：IO线程
             val tree : ApiResult<MutableList<Tree>> = RetrofitClient.apiService.getTreeByCoroutines()
             // 主线程
             val cid = tree?.data?.get(0)?.id
             if(cid!=null){
-            	// 网络请求：IO线程
+                // 网络请求：IO线程
                 val pageResult : ApiResult<Pagination<Article>> = RetrofitClient.apiService.getArticleListByCoroutines(0, cid)
                 // 主线程
                 page.value = pageResult.data!!
@@ -109,7 +109,7 @@ public data class CoroutineName(
 参照上述的例子， 可以自定义
 
 ```
-public data class CoroutineAbelzhaoDebug(
+public data class CoroutineJailedBirdDebug(
     /**
      * User-defined coroutine name.
      */
@@ -118,7 +118,7 @@ public data class CoroutineAbelzhaoDebug(
     /**
      * Key for [CoroutineName] instance in the coroutine context.
      */
-    public companion object Key : CoroutineContext.Key<CoroutineAbelzhaoDebug>
+    public companion object Key : CoroutineContext.Key<CoroutineJailedBirdDebug>
 }
 ```
 
@@ -145,7 +145,7 @@ private val scopeExceptionHandler = CoroutineExceptionHandler { coroutineContext
       public val isCompleted: Boolean
       public fun start(): Boolean
       public fun cancel(cause: CancellationException? = null)
-  	xxx
+    xxx
   }
   
   val job: Job = lifecycleScope.launch {
@@ -203,7 +203,7 @@ public interface Job : CoroutineContext.Element {
 }
 
  val job = lifecycleScope.launch{
-            	
+                
  }
  job.cancel()
 ```
@@ -284,7 +284,6 @@ fun testStructureConcurrency() {
 
 ## 在项目中的落地
 
-- 打开联合收单， 看下里面常见的操作 
 - 在 `onCreate` 使用 `lifecycleScope.launchWhenStart()` 完成 **一次性** 的 `start` 阶段的初始化
 - 一般情况下， 直接使用`lifecycleScope`和`viewModelScope` 不需要自定义`Scope`, 自定义`Scope` 也最好使用 `SupervisorJob`
 - 使用`async`同时进行多个接口的并发请求 
@@ -421,7 +420,7 @@ suspend fun doWorkBack(flag: Boolean): Int = withContext(Dispatchers.IO) {
 suspend fun getUser(): User = suspendCancellableCoroutine { continuation ->
     Thread {
         Thread.sleep(2000)
-        continuation.resume(User("Abelzhao", 23))
+        continuation.resume(User("JailedBird", 23))
     }.start()
 }
 
